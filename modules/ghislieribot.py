@@ -1,5 +1,6 @@
 import telegram as tlg
-import telegram.ext as tlext
+import telegram.ext
+from .databaser import Databaser
 from . import utility as utl
 from . import var
 from time import sleep
@@ -13,7 +14,7 @@ class GhislieriBot(tlg.Bot):
         super(GhislieriBot, self).__init__(token=utl.get_bot_token())
         self.updater = tlg.ext.Updater(bot=self)
         self._handlers_setup()
-        self.sessions = set()
+        self.databaser = Databaser()
         self.updater.start_polling()
 
     def _handlers_setup(self):
@@ -23,9 +24,9 @@ class GhislieriBot(tlg.Bot):
         self.updater.dispatcher.add_error_handler(self._error_handler)
         # TODO: Add Files Handler
 
-    def _get_session(self, update):
+    def _get_student(self, update):
         try:
-            return next(filter(lambda s: s.is_user(update.effective_user.id), self.sessions))
+            return self.databaser.get_student(update.effective_user.id)
         except StopIteration:
             raise  # TODO: Add new user sign-up
 
@@ -37,17 +38,17 @@ class GhislieriBot(tlg.Bot):
         print(context.error)  # TODO: Implement error logging and sending to admins
 
     def _callback_handler(self, update, context):
-        self._response_handler(self._get_session(update), 'callback', update.callback_query.data, True)
+        self._response_handler(self._get_student(update), 'callback', update.callback_query.data, True)
 
     def _message_handler(self, update, context):
-        self._response_handler(self._get_session(update), 'message', update.update.message.text)
+        self._response_handler(self._get_student(update), 'message', update.update.message.text)
 
-    def _response_handler(self, session, answer_type, value, edit=False):
-        to_update = session.handle_response(answer_type, value)
+    def _response_handler(self, student, answer_type, value, edit=False):
+        to_update = student.handle_response(answer_type, value)
         if to_update:
-            self._chat_update(session, edit)
+            self._chat_update(student, edit)
 
-    def _chat_update(self, session, edit):
+    def _chat_update(self, student, edit):
         pass
 
     def run(self):
