@@ -19,7 +19,7 @@ class GhislieriBot(tlg.Bot):
 
     def _handlers_setup(self):
         self.updater.dispatcher.add_handler(tlg.ext.CommandHandler('start', self._command_handler))
-        self.updater.dispatcher.add_handler(tlg.ext.CallbackQueryHandler(lambda u, c: self._callback_handler))
+        self.updater.dispatcher.add_handler(tlg.ext.CallbackQueryHandler(self._query_handler))
         self.updater.dispatcher.add_handler(tlg.ext.MessageHandler(tlg.ext.Filters.text & (~tlg.ext.Filters.command), self._message_handler))
         self.updater.dispatcher.add_error_handler(self._error_handler)
         # TODO: Add Files Handler
@@ -37,24 +37,37 @@ class GhislieriBot(tlg.Bot):
         logger.error(msg="Exception while handling an update:", exc_info=context.error)
         print(context.error)  # TODO: Implement error logging and sending to admins
 
-    def _callback_handler(self, update, context):
-        self._response_handler(self._get_student(update), 'callback', update.callback_query.data, True)
+    def _query_handler(self, update, context):
+        student = self._get_student(update)
+        student.respond('query', update.callback_query.data)
+        self._send_message(student, True)
 
     def _message_handler(self, update, context):
-        self._response_handler(self._get_student(update), 'message', update.update.message.text)
+        student = self._get_student(update)
+        student.respond('message', update.message.text)
+        self._send_message(student)
 
-    def _response_handler(self, student, answer_type, value, edit=False):
-        to_update = student.handle_response(answer_type, value)
-        if to_update:
-            self._chat_update(student, edit)
-
-    def _chat_update(self, student, edit):
-        pass
+    def _send_message(self, student, edit=False):
+        message_content = student.get_message_content()
+        if edit:
+            try:
+                self.edit_message_text(**message_content)
+            except telegram.error.BadRequest as e:
+                if e.message != "Message is not modified: specified new message content and reply markup are exactly the same as a current content and reply markup of the message":
+                    raise  # TODO: Do this better
+        else:
+            message_content.pop('message_id')
+            new_message = self.send_message(**message_content)
+            self.databaser.set_student_last_message_id(student, new_message.message_id)
 
     def run(self):
         try:
             while True:
-                sleep(1)  # TODO: Add expired session control and reset
+                for s in self.databaser.get_students():
+                    updated = s.update()
+                    if updated is not None:
+                        self._send_message(s, updated)
+                sleep(var.STUDENT_UPDATE_SECONDS_INTERVAL)
         except KeyboardInterrupt:
             pass
         finally:

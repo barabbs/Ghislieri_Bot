@@ -1,20 +1,28 @@
+from emoji import emojize
+import telegram as tlg
 from . import var
+from . import formatting as fmt
 
 
 class BaseMessages(object):
-    def __init__(self, last_message):
-        self.last_mesage = last_message
+    TEXT = ""
 
-    def send(self):
+    def _get_text(self):
+        return self.TEXT
+
+    def get_content(self):  # TODO: Add Permissions
+        message = {'text': emojize(fmt.sanify(self._get_text())),
+                   'parse_mode': tlg.ParseMode.HTML}
+        return message
+
+    def get_answer_query(self, callback):
         pass
 
-    def answer_callback(self, callback):
-        pass
-
-    def answer_message(self, text):
+    def get_answer_message(self, text):
         pass
 
     # TODO: Add reply for file
 
-class CallBackMessage(BaseMessages):
+
+class QueryMessage(BaseMessages):
     pass

@@ -1,37 +1,55 @@
 from . import var
 import time
+from messages.home import HomeMessage
 
 
 class Student(object):
-    def __init__(self, user_id, name, surname, email=None):
-        self.user_id, self.name, self.surname, self.email = user_id, name, surname, email
-        # TODO: Add user permissions
+    def __init__(self, user_id, chat_id, last_message_id, infos=None):
+        self.user_id, self.chat_id, self.last_message_id = user_id, chat_id, last_message_id
+        if infos is None:
+            infos = dict((k, None) for k in var.STUDENT_INFOS)
+        self.infos = infos
         self.message_list = list()
         self.last_interaction = None
-        self.session_expired = False
         self._refresh_last_interaction()
+        # TODO: Add user permissions
+
+    def _set_first_message(self):
+        self.message_list = [HomeMessage(), ]  # TODO: Add notification support
+        return False  # TODO: return True if message is notification
+
+    def _get_message(self):
+        return self.message_list[-1]
+
+    def respond(self, response_type, value):
+        self._refresh_last_interaction()
+        answer = self._get_answer(response_type, value)
+        if answer is not None:
+            self._response_update(*answer)
 
     def _refresh_last_interaction(self):
         self.last_interaction = int(time.time())
 
-    def is_expired(self):
-        self.session_expired = self.session_expired or (time.time()) > self.last_interaction + var.SESSION_TIMEOUT_SECONDS
-        return self.session_expired
+    def _get_answer(self, response_type, value):
+        last_message = self._get_message()
+        return getattr(last_message, f'get_answer_{response_type}')(value)
 
-    def get_last_message(self):
-        return self.message_list[-1]
-
-    def handle_response(self, answer_type, value):
-        self._refresh_last_interaction()
-        last_message = self.get_last_message()
-        answer = getattr(last_message, f'answer_{answer_type}')(value)
-        if answer is not None:
-            self.update(*answer)
-
-    def update(self, *args):
+    def _response_update(self, *args):
         if args[0] == 'back':
             self.message_list.pop()
         elif args[0] == 'home':
-            self.expired = True
+            self._set_first_message()
         elif args[0] == 'new':
             self.message_list.append(args[1](**args[2]))
+
+    def get_message_content(self):
+        message = self._get_message()
+        content = message.get_content()
+        content.update({'chat_id': self.chat_id, 'message_id': self.last_message_id})
+
+    def update(self):
+        if self._is_session_expired():
+            return self._set_first_message()
+
+    def _is_session_expired(self):
+        return (time.time()) > self.last_interaction + var.SESSION_TIMEOUT_SECONDS and len(self.message_list) > 1
