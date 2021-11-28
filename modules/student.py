@@ -10,11 +10,11 @@ class Student(object):
             infos = dict((k, None) for k in var.STUDENT_INFOS)
         self.infos = infos
         self.message_list = list()
-        self.last_interaction = None
-        self._refresh_last_interaction()
+        self.last_interaction = 0
         # TODO: Add user permissions
 
-    def _set_first_message(self):
+    def reset_session(self):
+        self.last_interaction = None
         self.message_list = [HomeMessage(), ]  # TODO: Add notification support
         return False  # TODO: return True if message is notification
 
@@ -38,7 +38,7 @@ class Student(object):
         if args[0] == 'back':
             self.message_list.pop()
         elif args[0] == 'home':
-            self._set_first_message()
+            self.reset_session()
         elif args[0] == 'new':
             self.message_list.append(args[1](**args[2]))
 
@@ -49,7 +49,7 @@ class Student(object):
 
     def update(self):
         if self._is_session_expired():
-            return self._set_first_message()
+            return self.reset_session()
 
     def _is_session_expired(self):
-        return (time.time()) > self.last_interaction + var.SESSION_TIMEOUT_SECONDS and len(self.message_list) > 1
+        return self.last_interaction is not None and int(time.time()) > self.last_interaction + var.SESSION_TIMEOUT_SECONDS

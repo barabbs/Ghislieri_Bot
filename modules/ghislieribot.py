@@ -30,12 +30,14 @@ class GhislieriBot(tlg.Bot):
         except StopIteration:
             raise  # TODO: Add new user sign-up
 
-    def _command_handler(self, update, context):
-        pass
-
     def _error_handler(self, update, context):
         logger.error(msg="Exception while handling an update:", exc_info=context.error)
         print(context.error)  # TODO: Implement error logging and sending to admins
+
+    def _command_handler(self, update, context):
+        student = self._get_student(update)
+        student.reset_session()
+        self._send_message(student)
 
     def _query_handler(self, update, context):
         student = self._get_student(update)
@@ -64,9 +66,9 @@ class GhislieriBot(tlg.Bot):
         try:
             while True:
                 for s in self.databaser.get_students():
-                    updated = s.update()
-                    if updated is not None:
-                        self._send_message(s, updated)
+                    update_edit = s.update()
+                    if update_edit is not None:
+                        self._send_message(s, update_edit)
                 sleep(var.STUDENT_UPDATE_SECONDS_INTERVAL)
         except KeyboardInterrupt:
             pass
