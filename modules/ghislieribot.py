@@ -26,16 +26,16 @@ class GhislieriBot(tlg.Bot):
         # TODO: Add Files Handler
 
     def _get_student(self, update):
-        try:
-            return self.databaser.get_student(update.effective_user.id)
-        except StopIteration:
+        student = self.databaser.get_student(update.effective_user.id)
+        if student is not None:
+            return student
+        else:
             return self._new_student_signup(update)
 
     def _new_student_signup(self, update):
         welcome_msg = WelcomeMessage()
         new_msg_id = self.send_message(chat_id=update.message.chat.id, **welcome_msg.get_content())
-        return self.databaser.new_student(update.effective_user.id, update.message.chat.id, new_msg_id, welcome_msg)
-
+        return self.databaser.new_student(update.effective_user.id, update.message.chat.id, new_msg_id.message_id, welcome_msg)
 
     def _error_handler(self, update, context):
         logger.error(msg="Exception while handling an update:", exc_info=context.error)
@@ -72,15 +72,15 @@ class GhislieriBot(tlg.Bot):
     def run(self):
         try:
             while True:
+                sleep(var.STUDENT_UPDATE_SECONDS_INTERVAL)
                 for s in self.databaser.get_students():
                     update_edit = s.update()
                     if update_edit is not None:
                         self._send_message(s, update_edit)
-                sleep(var.STUDENT_UPDATE_SECONDS_INTERVAL)
         except KeyboardInterrupt:
-            pass
-        finally:
-            self.quit()
+            print("Keyboard Interrupt - Exiting...")
+        self.quit()
 
     def quit(self):
+        self.databaser.exit()
         pass  # TODO: Terminating procedures

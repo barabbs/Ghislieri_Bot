@@ -60,7 +60,7 @@ class QueryMessage(BaseMessages):
 
 
 class NotificationMessage(QueryMessage):
-    BUTTONS = [["OK", "ok"],
+    BUTTONS = [[("OK", "ok"), ],
                ]
 
     def __init__(self):
