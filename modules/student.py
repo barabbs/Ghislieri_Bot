@@ -4,13 +4,15 @@ from messages.home import HomeMessage
 
 
 class Student(object):
-    def __init__(self, user_id, chat_id, last_message_id, infos=None):
+    def __init__(self, user_id, chat_id, last_message_id, infos=None, start_message=None):
         self.user_id, self.chat_id, self.last_message_id = user_id, chat_id, last_message_id
-        if infos is None:
-            infos = dict((k, None) for k in var.STUDENT_INFOS)
-        self.infos = infos
-        self.message_list = list()
-        self.last_interaction = 0
+        self.infos = infos if infos is not None else dict((k, None) for k in var.STUDENT_INFOS)
+        if start_message is not None:
+            self.message_list = [start_message, ]
+            self.last_interaction = None
+        else:
+            self.message_list = list()
+            self.last_interaction = 0
         # TODO: Add user permissions
 
     def reset_session(self):

@@ -1,5 +1,6 @@
 import telegram as tlg
 import telegram.ext
+from messages.home import WelcomeMessage
 from .databaser import Databaser
 from . import utility as utl
 from . import var
@@ -28,7 +29,13 @@ class GhislieriBot(tlg.Bot):
         try:
             return self.databaser.get_student(update.effective_user.id)
         except StopIteration:
-            raise  # TODO: Add new user sign-up
+            return self._new_student_signup(update)
+
+    def _new_student_signup(self, update):
+        welcome_msg = WelcomeMessage()
+        new_msg_id = self.send_message(chat_id=update.message.chat.id, **welcome_msg.get_content())
+        return self.databaser.new_student(update.effective_user.id, update.message.chat.id, new_msg_id, welcome_msg)
+
 
     def _error_handler(self, update, context):
         logger.error(msg="Exception while handling an update:", exc_info=context.error)

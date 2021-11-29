@@ -13,11 +13,13 @@ class Databaser(object):
         self.cursor.execute(f"SELECT * FROM {var.DATABASE_STUDENTS_TABLE}")
         return set(Student(*s[0:2], infos=dict(zip(var.STUDENT_INFOS, s[2:]))) for s in self.cursor.fetchall())
 
-    def new_student(self, user_id, chat_id, last_message_id):
+    def new_student(self, user_id, chat_id, last_message_id, start_message):
         self.cursor.execute(f"INSERT INTO {var.DATABASE_STUDENTS_TABLE} (user_id, chat_id, last_message_id) VALUES (?, ?, ?)",
                             (user_id, chat_id, last_message_id))  # plz, don't do SQL injection on me :(
         self.connection.commit()
-        self.students.add(Student(user_id, chat_id, last_message_id))
+        new_student = Student(user_id, chat_id, last_message_id, start_message=start_message)
+        self.students.add(new_student)
+        return new_student
 
     def _edit_database(self, student, attribute, value):
         self.cursor.execute(f"UPDATE {var.DATABASE_STUDENTS_TABLE} SET {attribute} = ? WHERE user_id = ?", (attribute, value, student.user_id))

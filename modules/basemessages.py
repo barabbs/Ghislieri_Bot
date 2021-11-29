@@ -4,6 +4,18 @@ from . import var
 from . import formatting as fmt
 
 
+def _get_back_answer():
+    return lambda: 'back',
+
+
+def _get_home_answer():
+    return lambda: 'home',
+
+
+def _get_new_message_answer(new_msg_class):
+    return lambda: 'new', new_msg_class
+
+
 class BaseMessages(object):
     TEXT = ""
 
@@ -31,8 +43,8 @@ class QueryMessage(BaseMessages):
     BUTTONS = list()
 
     def __init__(self):
-        super(QueryMessage, self).__init__()
         self.buttons = self.BUTTONS.copy()
+        super(QueryMessage, self).__init__()
 
     def _get_buttons(self):
         return self.buttons
@@ -44,5 +56,13 @@ class QueryMessage(BaseMessages):
         return content
 
     def get_answer_query(self, query):
-        return query
+        return getattr(self, f'_query_{query}')()
 
+
+class NotificationMessage(QueryMessage):
+    BUTTONS = [["OK", "ok"],
+               ]
+
+    def __init__(self):
+        self._query_ok = _get_home_answer()
+        super(NotificationMessage, self).__init__()

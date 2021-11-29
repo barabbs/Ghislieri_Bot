@@ -10,7 +10,7 @@ FILEPATH_BOT_TOKEN = os.path.join(CREDENTIALS_DIR, 'ghislieri_bot_token.gbtk')
 FILEPATH_DATABASE = os.path.join(DATABASES_DIR, 'database.gbdb')
 
 # Bot
-STUDENT_UPDATE_SECONDS_INTERVAL = 60
+STUDENT_UPDATE_SECONDS_INTERVAL = 6
 
 # Database
 DATABASE_STUDENTS_TABLE = "students"
