@@ -15,6 +15,6 @@ class FeedbackMessage(bmsg.TextMessage, bmsg.BackMessage):
 
     def get_answer_text(self, text, student):
         time = datetime.now().strftime(var.DATETIME_FORMAT)
-        with open(os.path.join(var.FEEDBACK_DIR, f"{student.user_id}_{time}.gbfb"), 'w', encoding='utf-8') as f:
+        with open(os.path.join(var.FEEDBACK_DIR, f"{student.user_id} - {time}.gbfb"), 'w', encoding='utf-8') as f:
             f.write(f"name={student.get_info('name')}\nsurname={student.get_info('surname')}\nuser_id={student.user_id}\ntime={time}\n\n{text}")
         return super(FeedbackMessage, self).get_answer_text(text, student)

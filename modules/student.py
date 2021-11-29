@@ -2,6 +2,9 @@ from . import var
 import time
 import queue
 from messages.home import HomeMessage
+import logging
+
+log = logging.getLogger(__name__)
 
 
 class Student(object):

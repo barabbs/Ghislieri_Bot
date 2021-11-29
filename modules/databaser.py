@@ -3,13 +3,18 @@ from .student import Student
 import threading as thr
 import queue
 from . import var
+import logging
+
+log = logging.getLogger(__name__)
 
 
 class Databaser(object):
     def __init__(self):
+        log.info("Databaser creating...")
         self.requests_queue, self.results_queue = queue.Queue(), queue.Queue()
         self.process = DatabaserThread(self.requests_queue, self.results_queue)
         self.process.start()
+        log.info("Databaser created")
 
     def _put_request_get_result(self, method, *args):  # TODO: Maybe rewrite with decorator?
         self.requests_queue.put((method, args), block=True)
@@ -34,14 +39,18 @@ class Databaser(object):
         return self._put_request_get_result('get_students')
 
     def exit(self):
-        return self._put_request_get_result('exit')
+        log.info("Databaser exiting...")
+        self._put_request_get_result('exit')
+        log.info("Databaser exited")
 
 
 class DatabaserThread(thr.Thread):
     def __init__(self, requests_queue, results_queue):
+        log.info("DatabaserThread creating...")
         self.requests_queue, self.results_queue = requests_queue, results_queue
         self.connection, self.cursor, self.students = None, None, None
         super(DatabaserThread, self).__init__()
+        log.info("DatabaserThread created")
 
     def _load_database(self):
         self.connection = sql.connect(var.FILEPATH_DATABASE)
@@ -79,8 +88,7 @@ class DatabaserThread(thr.Thread):
         try:
             return next(filter(lambda s: s.user_id == user_id, self.students))
         except StopIteration:
-            print("User not found")
-            print(list(s.user_id for s in self.students))
+            log.debug("User not found")
             return None
 
     def _get_students(self):
@@ -92,12 +100,14 @@ class DatabaserThread(thr.Thread):
         self.connection.close()
 
     def run(self):
+        log.info("DatabaserThread loading...")
         self._load_database()
         self._load_students()
+        log.info("DatabaserThread started")
         while True:
             method, args = self.requests_queue.get(block=True)
             result = getattr(self, f'_{method}')(*args)
             self.results_queue.put(result, block=True)
             if method == 'exit':
                 break
-        print("Databaser Thread ended")
+        log.info("DatabaserThread ended")

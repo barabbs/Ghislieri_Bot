@@ -2,6 +2,9 @@ from emoji import emojize
 import telegram as tlg
 from . import var
 from . import formatting as fmt
+import logging
+
+log = logging.getLogger(__name__)
 
 
 def get_back_answer():
