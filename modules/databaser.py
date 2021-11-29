@@ -12,13 +12,11 @@ class Databaser(object):
         self.process.start()
 
     def _put_request_get_result(self, method, *args):  # TODO: Maybe rewrite with decorator?
-        print(method, args)
         self.requests_queue.put((method, args), block=True)
-        print("waiting...")
         return self.results_queue.get(block=True)
 
-    def new_student(self, user_id, chat_id, last_message_id, start_message):
-        return self._put_request_get_result('new_student', user_id, chat_id, last_message_id, start_message)
+    def new_student(self, user_id, chat_id, last_message_id):
+        return self._put_request_get_result('new_student', user_id, chat_id, last_message_id)
 
     def edit_student_info(self, student, info, value):
         return self._put_request_get_result('edit_student_info', student, info, value)
@@ -51,19 +49,18 @@ class DatabaserThread(thr.Thread):
 
     def _load_students(self):
         self.cursor.execute(f"SELECT * FROM {var.DATABASE_STUDENTS_TABLE}")
-        self.students = set(Student(*s[0:2], infos=dict(zip(var.STUDENT_INFOS, s[2:]))) for s in self.cursor.fetchall())
+        self.students = set(Student(*s[0:3], infos=dict(zip(var.STUDENT_INFOS, s[3:]))) for s in self.cursor.fetchall())
 
-    def _new_student(self, user_id, chat_id, last_message_id, start_message):
+    def _new_student(self, user_id, chat_id, last_message_id):
         self.cursor.execute(f"INSERT INTO {var.DATABASE_STUDENTS_TABLE} (user_id, chat_id, last_message_id) VALUES (?, ?, ?)",
                             (user_id, chat_id, last_message_id))  # plz, don't do SQL injection on me :(
         self.connection.commit()
-        new_student = Student(user_id, chat_id, last_message_id, start_message=start_message)
+        new_student = Student(user_id, chat_id, last_message_id)
         self.students.add(new_student)
-        print("new student created")
         return new_student
 
     def _edit_database(self, student, attribute, value):
-        self.cursor.execute(f"UPDATE {var.DATABASE_STUDENTS_TABLE} SET {attribute} = ? WHERE user_id = ?", (attribute, value, student.user_id))
+        self.cursor.execute(f"UPDATE {var.DATABASE_STUDENTS_TABLE} SET {attribute} = ? WHERE user_id = ?", (value, student.user_id))
         self.connection.commit()
 
     def _edit_student_info(self, student, info, value):
@@ -97,8 +94,8 @@ class DatabaserThread(thr.Thread):
         self._load_students()
         while True:
             method, args = self.requests_queue.get(block=True)
-            print(f"got method {method}")
-            result=getattr(self, f'_{method}')(*args)
-            print(f"got result {result}")
+            result = getattr(self, f'_{method}')(*args)
             self.results_queue.put(result, block=True)
-            print(f"result put")
+            if method == 'exit':
+                break
+        print("Databaser Thread ended")

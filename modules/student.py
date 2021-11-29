@@ -1,24 +1,29 @@
 from . import var
 import time
+import queue
 from messages.home import HomeMessage
 
 
 class Student(object):
-    def __init__(self, user_id, chat_id, last_message_id, infos=None, start_message=None):
+    def __init__(self, user_id, chat_id, last_message_id, infos=None):
         self.user_id, self.chat_id, self.last_message_id = user_id, chat_id, last_message_id
         self.infos = infos if infos is not None else dict((k, None) for k in var.STUDENT_INFOS)
-        if start_message is not None:
-            self.message_list = [start_message, ]
-            self.last_interaction = None
-        else:
-            self.message_list = list()
-            self.last_interaction = 0
+        self.message_list = list()
+        self.reset_message_queue = queue.Queue()
+        self.last_interaction = 0
         # TODO: Add user permissions
 
     def reset_session(self):
         self.last_interaction = None
-        self.message_list = [HomeMessage(), ]  # TODO: Add notification support
-        return False  # TODO: return True if message is notification
+        try:
+            self.message_list = [self.reset_message_queue.get(block=False), ]
+            return False
+        except queue.Empty:
+            self.message_list = [HomeMessage(), ]
+            return True
+
+    def add_reset_message(self, message):
+        self.reset_message_queue.put(message, block=True)
 
     def _get_message(self):
         return self.message_list[-1]
@@ -48,6 +53,7 @@ class Student(object):
         message = self._get_message()
         content = message.get_content()
         content.update({'chat_id': self.chat_id, 'message_id': self.last_message_id})
+        return content
 
     def update(self):
         if self._is_session_expired():

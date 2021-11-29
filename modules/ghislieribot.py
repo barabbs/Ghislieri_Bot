@@ -35,7 +35,9 @@ class GhislieriBot(tlg.Bot):
     def _new_student_signup(self, update):
         welcome_msg = WelcomeMessage()
         new_msg_id = self.send_message(chat_id=update.message.chat.id, **welcome_msg.get_content())
-        return self.databaser.new_student(update.effective_user.id, update.message.chat.id, new_msg_id.message_id, welcome_msg)
+        student = self.databaser.new_student(update.effective_user.id, update.message.chat.id, new_msg_id.message_id)
+        student.add_reset_message(welcome_msg)
+        return student
 
     def _error_handler(self, update, context):
         logger.error(msg="Exception while handling an update:", exc_info=context.error)
@@ -44,7 +46,7 @@ class GhislieriBot(tlg.Bot):
     def _command_handler(self, update, context):
         student = self._get_student(update)
         student.reset_session()
-        self._send_message(student)
+        self._send_message(student, True)
 
     def _query_handler(self, update, context):
         student = self._get_student(update)
@@ -65,6 +67,7 @@ class GhislieriBot(tlg.Bot):
                 if e.message != "Message is not modified: specified new message content and reply markup are exactly the same as a current content and reply markup of the message":
                     raise  # TODO: Do this better
         else:
+            self.delete_message(chat_id=message_content['chat_id'], message_id=message_content['message_id'])
             message_content.pop('message_id')
             new_message = self.send_message(**message_content)
             self.databaser.set_student_last_message_id(student, new_message.message_id)

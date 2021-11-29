@@ -5,15 +5,15 @@ from . import formatting as fmt
 
 
 def _get_back_answer():
-    return lambda: 'back',
+    return lambda: ('back',)
 
 
 def _get_home_answer():
-    return lambda: 'home',
+    return lambda: ('home',)
 
 
 def _get_new_message_answer(new_msg_class):
-    return lambda: 'new', new_msg_class
+    return lambda: ('new', new_msg_class)
 
 
 class BaseMessages(object):
