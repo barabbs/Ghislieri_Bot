@@ -22,7 +22,7 @@ class GhislieriBot(tlg.Bot):
     def _handlers_setup(self):
         self.updater.dispatcher.add_handler(tlg.ext.CommandHandler('start', self._command_handler))
         self.updater.dispatcher.add_handler(tlg.ext.CallbackQueryHandler(self._query_handler))
-        self.updater.dispatcher.add_handler(tlg.ext.MessageHandler(tlg.ext.Filters.text & (~tlg.ext.Filters.command), self._message_handler))
+        self.updater.dispatcher.add_handler(tlg.ext.MessageHandler(tlg.ext.Filters.text & (~tlg.ext.Filters.command), self._text_handler))
         self.updater.dispatcher.add_error_handler(self._error_handler)
         # TODO: Add Files Handler
 
@@ -54,9 +54,9 @@ class GhislieriBot(tlg.Bot):
         student.respond('query', update.callback_query.data)
         self._send_message(student, True)
 
-    def _message_handler(self, update, context):
+    def _text_handler(self, update, context):
         student = self._get_student(update)
-        student.respond('message', update.message.text)
+        student.respond('text', update.message.text)
         self._send_message(student)
 
     def _send_message(self, student, edit=False):
@@ -98,5 +98,7 @@ class GhislieriBot(tlg.Bot):
         self.quit()
 
     def quit(self):
+        self.updater.dispatcher.stop()
         self.databaser.exit()
         pass  # TODO: Terminating procedures
+        print("Ghislieri Bot ended")

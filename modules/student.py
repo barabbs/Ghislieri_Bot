@@ -14,6 +14,9 @@ class Student(object):
         self.last_interaction = 0
         # TODO: Add user permissions
 
+    def get_info(self, info):
+        return self.infos[info]
+
     def reset_session(self):
         self.last_interaction = None
         try:
@@ -40,7 +43,7 @@ class Student(object):
 
     def _get_answer(self, response_type, value):
         last_message = self._get_message()
-        return getattr(last_message, f'get_answer_{response_type}')(value)
+        return getattr(last_message, f'get_answer_{response_type}')(value, self)
 
     def _response_update(self, *args):
         if args[0] == 'back':
