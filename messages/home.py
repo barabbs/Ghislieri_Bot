@@ -3,7 +3,7 @@ import importlib
 
 
 class HomeMessage(bmsg.QueryMessage):
-    TEXT = f":red_circle::yellow_circle: Collegio Ghislieri :red_circle::yellow_circle:"
+    TEXT = f":red_circle::yellow_circle: {bmsg.fmt.bold('Collegio Ghislieri')} :red_circle::yellow_circle:"
     BOT_SERVICES = ('ghislieri_bot',)
 
     def _get_buttons(self):

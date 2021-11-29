@@ -27,7 +27,7 @@ class BaseMessages(object):
         return self.TEXT
 
     def get_content(self):  # TODO: Add Permissions
-        content = {'text': emojize(fmt.sanify(self._get_text())),
+        content = {'text': emojize(self._get_text()),
                    'parse_mode': tlg.ParseMode.HTML}
         return content
 
@@ -68,7 +68,7 @@ class QueryMessage(BaseMessages):
         content = super(QueryMessage, self).get_content()
         buttons = self._get_buttons()
         self._set_query_answers(buttons)
-        keyboard = list(list(tlg.InlineKeyboardButton(emojize(fmt.sanify(b[1])), callback_data=b[0]) for b in row) for row in buttons)
+        keyboard = list(list(tlg.InlineKeyboardButton(emojize(b[1]), callback_data=b[0]) for b in row) for row in buttons)
         content['reply_markup'] = tlg.InlineKeyboardMarkup(keyboard)
         return content
 

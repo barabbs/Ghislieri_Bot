@@ -1,5 +1,6 @@
 import os
 import modules
+from modules import formatting as fmt
 
 # Directories
 DATA_DIR = os.path.join(os.getcwd(), 'data')
@@ -26,10 +27,8 @@ SESSION_TIMEOUT_SECONDS = 600
 DATETIME_FORMAT = '%Y-%m-%d_%H:%M:%S'
 
 # About
-ABOUT_BOT = f""":robot: Ghislieri Bot
-version {modules.__version__}
+ABOUT_BOT = f""":robot: {fmt.bold('Ghislieri Bot')} - version {modules.__version__}
 
-Source code can be found at
-https://github.com/barabbs/Ghislieri_Bot
-
-Developed by Barabba"""
+Source code at https://github.com/barabbs/Ghislieri_Bot
+{fmt.italic('Developed by Barabba')}
+"""

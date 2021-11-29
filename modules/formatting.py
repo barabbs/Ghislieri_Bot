@@ -1,6 +1,3 @@
-YES = u"✔"
-NO = u"❌"
-
 BOLD, END_BOLD = '<b>', '</b>'
 ITALIC, END_ITALIC = '<i>', '</i>'
 UNDERLINE, END_UNDERLINE = '<u>', '</u>'

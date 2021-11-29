@@ -8,9 +8,9 @@ class ThankYouMessage(bmsg.NotificationMessage):
     TEXT = "Grazie per la segnalazione! :grinning_face_with_smiling_eyes:"
 
 
-class FeedbackMessage(bmsg.TextMessage):
+class FeedbackMessage(bmsg.TextMessage, bmsg.BackMessage):
     TITLE = f":envelope: Segnalazioni e Suggerimenti"
-    TEXT = "Che problema hai riscontrato?\nChe suggerimento hai per migliorare il bot?"
+    TEXT = f"Che {bmsg.fmt.bold('problema')} hai riscontrato?\nChe {bmsg.fmt.bold('suggerimento')} hai per migliorare il bot?"
     TEXT_ANSWER = bmsg.get_new_message_answer(ThankYouMessage)
 
     def get_answer_text(self, text, student):
