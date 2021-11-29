@@ -4,16 +4,16 @@ from . import var
 from . import formatting as fmt
 
 
-def _get_back_answer():
+def get_back_answer():
     return lambda: ('back',)
 
 
-def _get_home_answer():
+def get_home_answer():
     return lambda: ('home',)
 
 
-def _get_new_message_answer(new_msg_class):
-    return lambda: ('new', new_msg_class)
+def get_new_message_answer(new_msg_class):  # TODO: see if it is better with message instance as argument rather than message class
+    return lambda: ('new', new_msg_class, dict())
 
 
 class BaseMessages(object):
@@ -64,5 +64,16 @@ class NotificationMessage(QueryMessage):
                ]
 
     def __init__(self):
-        self._query_ok = _get_home_answer()
+        self._query_ok = get_home_answer()
         super(NotificationMessage, self).__init__()
+
+
+class NavigationMessage(QueryMessage):
+
+    def __init__(self):
+        self._query_back = get_back_answer()
+        self._query_home = get_home_answer()
+        super(NavigationMessage, self).__init__()
+
+    def _get_buttons(self):
+        return super(NavigationMessage, self)._get_buttons() + [[(":right_arrow_curving_left:", "back"), (":house:", "home")], ]

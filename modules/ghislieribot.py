@@ -1,7 +1,8 @@
 import telegram as tlg
 import telegram.ext
-from messages.home import WelcomeMessage
+from messages.welcome import WelcomeMessage
 from .databaser import Databaser
+from . import telegram_errors as tlgerr
 from . import utility as utl
 from . import var
 from time import sleep
@@ -34,7 +35,7 @@ class GhislieriBot(tlg.Bot):
 
     def _new_student_signup(self, update):
         welcome_msg = WelcomeMessage()
-        new_msg_id = self.send_message(chat_id=update.message.chat.id, **welcome_msg.get_content())
+        new_msg_id = self.send_message(chat_id=update.message.chat.id, **welcome_msg.get_content())  # TODO: Visual bug - message gets sent and then deleted inside _command_handler
         student = self.databaser.new_student(update.effective_user.id, update.message.chat.id, new_msg_id.message_id)
         student.add_reset_message(welcome_msg)
         return student
@@ -46,7 +47,7 @@ class GhislieriBot(tlg.Bot):
     def _command_handler(self, update, context):
         student = self._get_student(update)
         student.reset_session()
-        self._send_message(student, True)
+        self._send_message(student)
 
     def _query_handler(self, update, context):
         student = self._get_student(update)
@@ -61,25 +62,37 @@ class GhislieriBot(tlg.Bot):
     def _send_message(self, student, edit=False):
         message_content = student.get_message_content()
         if edit:
-            try:
-                self.edit_message_text(**message_content)
-            except telegram.error.BadRequest as e:
-                if e.message != "Message is not modified: specified new message content and reply markup are exactly the same as a current content and reply markup of the message":
-                    raise  # TODO: Do this better
+            self._edit_message(student, message_content)
         else:
+            self._send_and_delete_message(student, message_content)
+
+    def _edit_message(self, student, message_content):
+        try:
+            self.edit_message_text(**message_content)
+        except telegram.error.BadRequest as e:
+            if e.message == tlgerr.EDIT_MSG_NOT_FOUND:
+                self._send_and_delete_message(student, message_content)
+            elif e.message != tlgerr.EDIT_MSG_IDENTICAL:
+                raise  # TODO: Do this better
+
+    def _send_and_delete_message(self, student, message_content):
+        try:
             self.delete_message(chat_id=message_content['chat_id'], message_id=message_content['message_id'])
-            message_content.pop('message_id')
-            new_message = self.send_message(**message_content)
-            self.databaser.set_student_last_message_id(student, new_message.message_id)
+        except telegram.error.BadRequest as e:
+            if e.message != tlgerr.DELETE_MSG_NOT_FOUND:
+                raise  # TODO: Do this better
+        message_content.pop('message_id')
+        new_message = self.send_message(**message_content)
+        self.databaser.set_student_last_message_id(student, new_message.message_id)
 
     def run(self):
         try:
             while True:
-                sleep(var.STUDENT_UPDATE_SECONDS_INTERVAL)
                 for s in self.databaser.get_students():
                     update_edit = s.update()
                     if update_edit is not None:
                         self._send_message(s, update_edit)
+                sleep(var.STUDENT_UPDATE_SECONDS_INTERVAL)
         except KeyboardInterrupt:
             print("Keyboard Interrupt - Exiting...")
         self.quit()

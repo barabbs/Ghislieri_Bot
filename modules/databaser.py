@@ -79,6 +79,8 @@ class DatabaserThread(thr.Thread):
         try:
             return next(filter(lambda s: s.user_id == user_id, self.students))
         except StopIteration:
+            print("User not found")
+            print(list(s.user_id for s in self.students))
             return None
 
     def _get_students(self):

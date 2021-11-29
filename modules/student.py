@@ -6,6 +6,7 @@ from messages.home import HomeMessage
 
 class Student(object):
     def __init__(self, user_id, chat_id, last_message_id, infos=None):
+        # TODO: Remove chat_id if equal to user_id
         self.user_id, self.chat_id, self.last_message_id = user_id, chat_id, last_message_id
         self.infos = infos if infos is not None else dict((k, None) for k in var.STUDENT_INFOS)
         self.message_list = list()
@@ -61,3 +62,6 @@ class Student(object):
 
     def _is_session_expired(self):
         return self.last_interaction is not None and int(time.time()) > self.last_interaction + var.SESSION_TIMEOUT_SECONDS
+
+    def __str__(self):
+        return f"Student {self.user_id}"
