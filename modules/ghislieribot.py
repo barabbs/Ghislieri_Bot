@@ -59,24 +59,24 @@ class GhislieriBot(tlg.Bot):
     def _command_handler(self, update, context):
         student = self._get_student(update)
         student.reset_session()
-        self._send_message(student)
+        self._send_message(student, del_user_msg=update.message.message_id)
 
     def _query_handler(self, update, context):
         student = self._get_student(update)
         student.respond('query', update.callback_query.data, databaser=self.databaser)
-        self._send_message(student, True)
+        self._send_message(student, edit=True)
 
     def _text_handler(self, update, context):
         student = self._get_student(update)
         student.respond('text', update.message.text, databaser=self.databaser)
-        self._send_message(student)
+        self._send_message(student, del_user_msg=update.message.message_id)
 
-    def _send_message(self, student, edit=False):
+    def _send_message(self, student, edit=False, del_user_msg=None):
         message_content = student.get_message_content()
         if edit:
             self._edit_message(student, message_content)
         else:
-            self._send_and_delete_message(student, message_content)
+            self._send_and_delete_message(student, message_content, del_user_msg)
 
     def _edit_message(self, student, message_content):
         try:
@@ -91,9 +91,11 @@ class GhislieriBot(tlg.Bot):
                 log.error(f"Exception while editing a message: {e}")
                 utl.log_error(e)
 
-    def _send_and_delete_message(self, student, message_content):
+    def _send_and_delete_message(self, student, message_content, del_user_msg=None):
         try:
             self.delete_message(chat_id=message_content['chat_id'], message_id=message_content['message_id'])
+            if del_user_msg is not None:
+                self.delete_message(chat_id=message_content['chat_id'], message_id=del_user_msg)
         except telegram.error.BadRequest as e:
             if e.message == tlgerr.DELETE_MSG_NOT_FOUND:
                 log.warning(e.message)
@@ -111,7 +113,7 @@ class GhislieriBot(tlg.Bot):
                 for s in self.databaser.get_students():
                     update_edit = s.update()
                     if update_edit is not None:
-                        self._send_message(s, update_edit)
+                        self._send_message(s, edit=update_edit)
                 sleep(var.STUDENT_UPDATE_SECONDS_INTERVAL)
         except KeyboardInterrupt:
             log.info("Bot received exit signal")
