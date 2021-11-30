@@ -7,6 +7,7 @@ CREDENTIALS_DIR = os.path.join(DATA_DIR, 'credentials')
 DATABASES_DIR = os.path.join(DATA_DIR, 'databases')
 FEEDBACK_DIR = os.path.join(DATA_DIR, 'feedback')
 LOGS_DIR = os.path.join(DATA_DIR, 'logs')
+ERRORS_DIR = os.path.join(DATA_DIR, 'errors')
 
 # Files
 DATETIME_FORMAT = '%Y-%m-%d %H:%M:%S'
