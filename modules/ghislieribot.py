@@ -3,6 +3,7 @@ import telegram.ext
 from messages.welcome import WelcomeMessage
 from .databaser import Databaser
 from . import telegram_errors as tlgerr
+from . import utility as utl
 from . import var
 from time import sleep
 import logging
@@ -53,7 +54,7 @@ class GhislieriBot(tlg.Bot):
             student = self.databaser.get_student(update.effective_user.id)
         except Exception:  # TODO: See if there's a better way to do this
             student = None
-        tlgerr.log_error(context.error, student)
+        utl.log_error(context.error, student)
 
     def _command_handler(self, update, context):
         student = self._get_student(update)
@@ -88,7 +89,7 @@ class GhislieriBot(tlg.Bot):
                 log.warning(e.message)
             else:
                 log.error(f"Exception while editing a message: {e}")
-                tlgerr.log_error(e)
+                utl.log_error(e)
 
     def _send_and_delete_message(self, student, message_content):
         try:
@@ -98,7 +99,7 @@ class GhislieriBot(tlg.Bot):
                 log.warning(e.message)
             else:
                 log.error(f"Exception while sending and deleting a message: {e}")
-                tlgerr.log_error(e)
+                utl.log_error(e)
         message_content.pop('message_id')
         new_message = self.send_message(**message_content)
         self.databaser.set_student_last_message_id(student, new_message.message_id)
