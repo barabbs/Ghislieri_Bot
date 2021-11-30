@@ -4,17 +4,18 @@ import os
 from . import var
 
 
-class ThankYouMessage(bmsg.NotificationMessage):
+class ThankYouMessage(bmsg.PushMessage):
     TEXT = "Grazie per la segnalazione! :grinning_face_with_smiling_eyes:"
 
 
 class FeedbackMessage(bmsg.TextMessage, bmsg.BackMessage):
-    TITLE = f":envelope: Segnalazioni e Suggerimenti"
+    TITLE = f":speech_balloon: Segnalazioni e Suggerimenti"
     TEXT = f"Che {bmsg.fmt.bold('problema')} hai riscontrato?\nChe {bmsg.fmt.bold('suggerimento')} hai per migliorare il bot?"
     TEXT_ANSWER = bmsg.get_new_message_answer(ThankYouMessage)
 
-    def get_answer_text(self, text, student):
+    def get_answer_text(self, text, **kwargs):
+        student = kwargs['student']
         time = datetime.now().strftime(var.DATETIME_FORMAT)
         with open(os.path.join(var.FEEDBACK_DIR, f"{student.user_id} - {time}.gbfb"), 'w', encoding='utf-8') as f:
             f.write(f"name={student.get_info('name')}\nsurname={student.get_info('surname')}\nuser_id={student.user_id}\ntime={time}\n\n{text}")
-        return super(FeedbackMessage, self).get_answer_text(text, student)
+        return super(FeedbackMessage, self).get_answer_text(text, **kwargs)

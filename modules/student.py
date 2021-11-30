@@ -35,22 +35,22 @@ class Student(object):
     def _get_message(self):
         return self.message_list[-1]
 
-    def respond(self, response_type, value):
+    def respond(self, response_type, value, **kwargs):
         self._refresh_last_interaction()
-        answer = self._get_answer(response_type, value)
+        answer = self._get_answer(response_type, value, **kwargs)
         if answer is not None:
             self._response_update(*answer)
 
     def _refresh_last_interaction(self):
         self.last_interaction = int(time.time())
 
-    def _get_answer(self, response_type, value):
+    def _get_answer(self, response_type, value, **kwargs):
         last_message = self._get_message()
-        return getattr(last_message, f'get_answer_{response_type}')(value, self)
+        return getattr(last_message, f'get_answer_{response_type}')(value, student=self, **kwargs)
 
     def _response_update(self, *args):
         if args[0] == 'back':
-            self.message_list.pop()
+            self.message_list = self.message_list[:-args[1]]
         elif args[0] == 'home':
             self.reset_session()
         elif args[0] == 'new':
@@ -58,7 +58,7 @@ class Student(object):
 
     def get_message_content(self):
         message = self._get_message()
-        content = message.get_content()
+        content = message.get_content(student=self)
         content.update({'chat_id': self.chat_id, 'message_id': self.last_message_id})
         return content
 

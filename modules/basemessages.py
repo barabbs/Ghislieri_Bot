@@ -7,8 +7,8 @@ import logging
 log = logging.getLogger(__name__)
 
 
-def get_back_answer():
-    return lambda: ('back',)
+def get_back_answer(n=1):
+    return lambda: ('back', n)
 
 
 def get_home_answer():
@@ -26,18 +26,18 @@ class BaseMessages(object):
     def __init__(self):
         self.text = self.TEXT
 
-    def _get_text(self):
-        return self.TEXT
+    def _get_text(self, **kwargs):
+        return self.text
 
-    def get_content(self):  # TODO: Add Permissions
-        content = {'text': emojize(self._get_text()),
+    def get_content(self, **kwargs):  # TODO: Add Permissions
+        content = {'text': emojize(self._get_text(**kwargs)),
                    'parse_mode': tlg.ParseMode.HTML}
         return content
 
-    def get_answer_query(self, query, student):
+    def get_answer_query(self, query, **kwargs):
         pass
 
-    def get_answer_text(self, text, student):
+    def get_answer_text(self, text, **kwargs):
         pass
 
     # TODO: Add reply for file
@@ -46,7 +46,7 @@ class BaseMessages(object):
 class TextMessage(BaseMessages):
     TEXT_ANSWER = lambda: None
 
-    def get_answer_text(self, text, student):
+    def get_answer_text(self, text, **kwargs):
         return self.__class__.TEXT_ANSWER()
 
 
@@ -54,11 +54,11 @@ class QueryMessage(BaseMessages):
     BUTTONS = list()
 
     def __init__(self):
+        super(QueryMessage, self).__init__()
         self.buttons = self.BUTTONS.copy()
         self.query_answers = dict()
-        super(QueryMessage, self).__init__()
 
-    def _get_buttons(self):
+    def _get_buttons(self, **kwargs):
         return self.buttons
 
     def _set_query_answers(self, buttons):
@@ -67,24 +67,27 @@ class QueryMessage(BaseMessages):
             for b in row:
                 self.query_answers[b[0]] = b[2]
 
-    def get_content(self):
-        content = super(QueryMessage, self).get_content()
-        buttons = self._get_buttons()
+    def get_content(self, **kwargs):
+        content = super(QueryMessage, self).get_content(**kwargs)
+        buttons = self._get_buttons(**kwargs)
         self._set_query_answers(buttons)
         keyboard = list(list(tlg.InlineKeyboardButton(emojize(b[1]), callback_data=b[0]) for b in row) for row in buttons)
         content['reply_markup'] = tlg.InlineKeyboardMarkup(keyboard)
         return content
 
-    def get_answer_query(self, query, student):
+    def get_answer_query(self, query, **kwargs):
         return self.query_answers[query]()
 
 
-class NotificationMessage(QueryMessage):
-    BUTTONS = [[("ok", "OK", get_home_answer()), ],
-               ]
+class PushMessage(QueryMessage):
+    BUTTON_TEXT = "OK"
+    BUTTON_ANSWER = get_home_answer()
+
+    def _get_buttons(self, **kwargs):
+        return [[("push", self.BUTTON_TEXT, self.__class__.BUTTON_ANSWER), ],]
 
 
 class BackMessage(QueryMessage):
 
-    def _get_buttons(self):
+    def _get_buttons(self, **kwargs):
         return super(BackMessage, self)._get_buttons() + [[("back", ":right_arrow_curving_left: Back", get_back_answer()), ], ]

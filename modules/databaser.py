@@ -58,7 +58,7 @@ class DatabaserThread(thr.Thread):
 
     def _load_students(self):
         self.cursor.execute(f"SELECT * FROM {var.DATABASE_STUDENTS_TABLE}")
-        self.students = set(Student(*s[0:3], infos=dict(zip(var.STUDENT_INFOS, s[3:]))) for s in self.cursor.fetchall())
+        self.students = set(Student(*s[0:3], infos=dict(zip(var.STUDENT_INFOS.keys(), s[3:]))) for s in self.cursor.fetchall())
 
     def _new_student(self, user_id, chat_id, last_message_id):
         self.cursor.execute(f"INSERT INTO {var.DATABASE_STUDENTS_TABLE} (user_id, chat_id, last_message_id) VALUES (?, ?, ?)",

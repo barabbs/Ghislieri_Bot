@@ -22,7 +22,7 @@ DATABASE_STUDENTS_TABLE = "students"
 DATABASE_PERMISSIONS_TABLE = "permissions"
 
 # Student
-STUDENT_INFOS = ('name', 'surname', 'email')
+STUDENT_INFOS = {'name': "nome", 'surname': "cognome", 'email': "email"}
 SESSION_TIMEOUT_SECONDS = 600
 
 # About

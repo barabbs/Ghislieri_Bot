@@ -48,6 +48,7 @@ class GhislieriBot(tlg.Bot):
 
     def _error_handler(self, update, context):
         log.error(f"Exception while handling an update: {context.error}")
+        # raise context.error
 
     def _command_handler(self, update, context):
         student = self._get_student(update)
@@ -56,12 +57,12 @@ class GhislieriBot(tlg.Bot):
 
     def _query_handler(self, update, context):
         student = self._get_student(update)
-        student.respond('query', update.callback_query.data)
+        student.respond('query', update.callback_query.data, databaser=self.databaser)
         self._send_message(student, True)
 
     def _text_handler(self, update, context):
         student = self._get_student(update)
-        student.respond('text', update.message.text)
+        student.respond('text', update.message.text, databaser=self.databaser)
         self._send_message(student)
 
     def _send_message(self, student, edit=False):
