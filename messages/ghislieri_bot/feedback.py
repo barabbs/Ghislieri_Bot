@@ -9,7 +9,7 @@ class ThankYouMessage(bmsg.PushMessage):
 
 
 class FeedbackMessage(bmsg.TextMessage, bmsg.BackMessage):
-    TITLE = f":speech_balloon: Segnalazioni e Suggerimenti"
+    TITLE = f":speech_balloon:    Segnalazioni e Suggerimenti"
     TEXT = f"Scrivi il {bmsg.fmt.bold('problema')} riscontrato o il {bmsg.fmt.bold('suggerimento')} per il bot"
     TEXT_ANSWER = bmsg.get_new_message_answer(ThankYouMessage)
 

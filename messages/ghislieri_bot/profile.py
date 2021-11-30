@@ -30,6 +30,6 @@ def get_recap_info_message_class(info):
 
 
 class ProfileMessage(bmsg.BackMessage):
-    TITLE = f":bust_in_silhouette: Profilo"
+    TITLE = f":bust_in_silhouette:    Profilo"
     TEXT = f"Consulta e modifica le tue informazioni"
     BUTTONS = list([(k, var.STUDENT_INFOS[k].capitalize(), bmsg.get_new_message_answer(get_recap_info_message_class(k))), ] for k in var.STUDENT_INFOS)
