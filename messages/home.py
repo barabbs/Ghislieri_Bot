@@ -4,7 +4,7 @@ import importlib
 
 class HomeMessage(bmsg.QueryMessage):
     TEXT = f":red_square::yellow_square::red_square::yellow_square:    {bmsg.fmt.bold('Collegio Ghislieri')}    :yellow_square::red_square::yellow_square::red_square:"
-    BOT_SERVICES = ('ghislieri_bot',)
+    BOT_SERVICES = ('ghislieri_bot', 'eduroam_reporting')
 
     def _get_buttons(self, **kwargs):
         buttons = list()

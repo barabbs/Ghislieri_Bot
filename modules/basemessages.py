@@ -79,12 +79,26 @@ class QueryMessage(BaseMessages):
         return self.query_answers[query]()
 
 
+class OptionsTextMessage(TextMessage, QueryMessage):
+    OPTIONS = list()
+
+    def _get_buttons(self):
+        return [[(str(i), option, None), ] for i, option in enumerate(self.OPTIONS)]
+
+    def get_answer_query(self, query, **kwargs):
+        try:
+            return self.get_answer_text(self.OPTIONS[int(query)], **kwargs)
+        except ValueError or IndexError:
+            return super(OptionsTextMessage, self).get_answer_query(query, **kwargs)
+
+
+
 class PushMessage(QueryMessage):
     BUTTON_TEXT = "OK"
     BUTTON_ANSWER = get_home_answer()
 
     def _get_buttons(self, **kwargs):
-        return [[("push", self.BUTTON_TEXT, self.__class__.BUTTON_ANSWER), ],]
+        return [[("push", self.BUTTON_TEXT, self.__class__.BUTTON_ANSWER), ], ]
 
 
 class BackMessage(QueryMessage):

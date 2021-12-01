@@ -16,7 +16,7 @@ FILEPATH_DATABASE = os.path.join(DATABASES_DIR, 'database.gbdb')
 FILEPATH_LOG = os.path.join(LOGS_DIR, f'ghislieri_bot {datetime.datetime.now().strftime(DATETIME_FORMAT)}.log')
 
 # Bot
-STUDENT_UPDATE_SECONDS_INTERVAL = 6
+STUDENT_UPDATE_SECONDS_INTERVAL = 10
 
 # Database
 DATABASE_STUDENTS_TABLE = "students"
@@ -27,8 +27,8 @@ STUDENT_INFOS = {'name': "nome", 'surname': "cognome", 'email': "email"}
 SESSION_TIMEOUT_SECONDS = 600
 
 # About
-ABOUT_BOT = f""":robot: {fmt.bold('Ghislieri Bot')} - version {modules.__version__}
+ABOUT_BOT = f"""{fmt.bold('Ghislieri Bot')} :robot:    -    version {modules.__version__}
+{fmt.italic('Developed by Barabba')}
 
 Source code at https://github.com/barabbs/Ghislieri_Bot
-{fmt.italic('Developed by Barabba')}
 """
