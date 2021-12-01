@@ -9,7 +9,7 @@ class ThankYouMessage(bmsg.PushMessage):
 
 
 class MainMessage(bmsg.BackMessage, bmsg.OptionsTextMessage):
-    TITLE = ":wrench:    Segnalazioni Eduroam"
+    TITLE = ":double_exclamation_mark:    Segnalazioni Eduroam"
     TEXT = bmsg.fmt.bold(TITLE) + "\nSeleziona una segnalazione o inviane una nuova"
     OPTIONS = var.REPORTS_LIST
     TEXT_ANSWER = bmsg.get_new_message_answer(ThankYouMessage)
