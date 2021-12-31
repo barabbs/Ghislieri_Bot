@@ -2,6 +2,8 @@ import os, modules, datetime
 from modules import formatting as fmt
 
 # Directories
+SERVICE_NAME = "ghilslieri_bot"
+# DATA_DIR = os.path.join('/var', 'opt', "ghislieri_services", SERVICE_NAME)
 DATA_DIR = os.path.join(os.getcwd(), 'data')
 CREDENTIALS_DIR = os.path.join(DATA_DIR, 'credentials')
 DATABASES_DIR = os.path.join(DATA_DIR, 'databases')
