@@ -1,6 +1,8 @@
 import os, datetime
 
 # Directories
+SERVICE_NAME = "eduroam_reporter"
+# DATA_DIR = os.path.join('/var', 'opt', "ghislieri_services", SERVICE_NAME)
 DATA_DIR = os.path.join(os.getcwd(), 'data')
 REPORTS_DIR = os.path.join(DATA_DIR, 'reports')
 TEMP_REPORTS_DIR = os.path.join('/tmp', 'eduroam_reporter')
