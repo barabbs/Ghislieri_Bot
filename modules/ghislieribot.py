@@ -1,5 +1,5 @@
 import telegram as tlg
-import telegram.ext
+import telegram.ext, telegram.utils.request
 from messages.welcome import WelcomeMessage
 from .databaser import Databaser
 from . import telegram_errors as tlgerr
@@ -19,7 +19,7 @@ def get_bot_token():
 class GhislieriBot(tlg.Bot):
     def __init__(self):
         log.info("Bot creating...")
-        super(GhislieriBot, self).__init__(token=get_bot_token())
+        super(GhislieriBot, self).__init__(token=get_bot_token(), request=tlg.utils.request.Request(con_pool_size=var.REQUEST_CONNECTION_POOL_SIZE))
         self.updater = tlg.ext.Updater(bot=self)
         self._handlers_setup()
         self.databaser = Databaser()
@@ -133,7 +133,7 @@ class GhislieriBot(tlg.Bot):
 
     def exit(self):
         log.info("Bot exiting...")
-        self.updater.dispatcher.stop()
+        self.updater.stop()
         self.databaser.exit()
         pass  # TODO: Terminating procedures
         log.info("Bot exited")

@@ -3,6 +3,7 @@ from modules import var
 import logging
 
 logger = logging.getLogger()
+logger.setLevel(logging.INFO)
 file_handler = logging.FileHandler(var.FILEPATH_LOG)
 file_handler.setLevel(logging.INFO)
 file_handler.setFormatter(logging.Formatter('%(levelname)s;%(asctime)s;%(name)s;%(threadName)s;%(message)s'))
