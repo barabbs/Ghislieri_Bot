@@ -18,6 +18,7 @@ FILEPATH_DATABASE = os.path.join(DATABASES_DIR, 'database.gbdb')
 FILEPATH_LOG = os.path.join(LOGS_DIR, f'ghislieri_bot {datetime.datetime.now().strftime(DATETIME_FORMAT)}.log')
 
 # Bot
+INITIAL_CONNECTION_RETRY_TIME = 30
 STUDENT_UPDATE_SECONDS_INTERVAL = 10
 
 # Database

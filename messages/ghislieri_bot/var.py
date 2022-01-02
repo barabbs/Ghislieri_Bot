@@ -2,7 +2,7 @@ import os, modules, datetime
 from modules import formatting as fmt
 
 # Directories
-SERVICE_NAME = "ghilslieri_bot"
+SERVICE_NAME = "ghislieri_bot"
 # DATA_DIR = os.path.join('/var', 'opt', "ghislieri_services", SERVICE_NAME)
 DATA_DIR = os.path.join(os.getcwd(), 'data')
 CREDENTIALS_DIR = os.path.join(DATA_DIR, 'credentials')
@@ -18,6 +18,7 @@ FILEPATH_DATABASE = os.path.join(DATABASES_DIR, 'database.gbdb')
 FILEPATH_LOG = os.path.join(LOGS_DIR, f'ghislieri_bot {datetime.datetime.now().strftime(DATETIME_FORMAT)}.log')
 
 # Bot
+INITIAL_CONNECTION_RETRY_TIME = 30
 STUDENT_UPDATE_SECONDS_INTERVAL = 10
 
 # Database

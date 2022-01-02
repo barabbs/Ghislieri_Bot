@@ -23,7 +23,14 @@ class GhislieriBot(tlg.Bot):
         self.updater = tlg.ext.Updater(bot=self)
         self._handlers_setup()
         self.databaser = Databaser()
-        self.updater.start_polling()
+        while True:
+            try:
+                self.updater.start_polling()
+            except tlg.error.NetworkError:
+                log.error(f"Couldn't connect to server, retrying in {var.INITIAL_CONNECTION_RETRY_TIME} seconds")
+                sleep(var.INITIAL_CONNECTION_RETRY_TIME)
+            else:
+                break
         log.info("Bot created")
 
     def _handlers_setup(self):
@@ -110,16 +117,19 @@ class GhislieriBot(tlg.Bot):
         log.info("Bot started")
         try:
             while True:
-                for s in self.databaser.get_students():
-                    update_edit = s.update()
-                    if update_edit is not None:
-                        self._send_message(s, edit=update_edit)
+                self._update()
                 sleep(var.STUDENT_UPDATE_SECONDS_INTERVAL)
         except KeyboardInterrupt:
             log.info("Bot received exit signal")
         finally:
             self.exit()
         log.info("Bot finished")
+
+    def _update(self):
+        for s in self.databaser.get_students():
+            update_edit = s.update()
+            if update_edit is not None:
+                self._send_message(s, edit=update_edit)
 
     def exit(self):
         log.info("Bot exiting...")
