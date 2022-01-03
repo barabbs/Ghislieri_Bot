@@ -20,6 +20,7 @@ def main():
     try:
         gb = GhislieriBot()
         gb.run()
+        # TODO :  Make so that even if errors occur in run or in init, bot.exit() is called (closing dispatcher, ecc...; or else the program gets stuck)
     except Exception as e:
         logger.critical(f"Critical error while running GhislieriBot: {e}")
         utl.log_error(e, severity="critical")

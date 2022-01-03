@@ -37,7 +37,7 @@ class GhislieriBot(tlg.Bot):
         self.updater.dispatcher.add_handler(tlg.ext.CommandHandler('start', self._command_handler))
         self.updater.dispatcher.add_handler(tlg.ext.CallbackQueryHandler(self._query_handler))
         self.updater.dispatcher.add_handler(tlg.ext.MessageHandler(tlg.ext.Filters.text & (~tlg.ext.Filters.command), self._text_handler))
-        self.updater.dispatcher.add_error_handler(self._error_handler)
+        self.updater.dispatcher.add_error_handler(self._error_handler) # TODO: BUG FIX - Raises tlg.error.NetworkError if not connected to internet (move near self.updater.start_polling() - line 28)
         # TODO: Add Files Handler
 
     def _get_student(self, update):
